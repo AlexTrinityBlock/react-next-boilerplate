@@ -4,6 +4,8 @@ import ProductCard from "@/components/ProductCard";
 // app 底下的 page.js 是首頁
 // 開啟Cursor Tab -> Ctrl + Shift + P -> Enable Cursor Tab
 export default function Home() {
+
+    // TODO: 作品集
     const projects = [
         {
             id: 1,
@@ -55,6 +57,7 @@ export default function Home() {
         }
     ];
 
+    // TODO: 客戶推薦
     const testimonials = [
         {
             id: 1,
@@ -79,6 +82,7 @@ export default function Home() {
         }
     ];
 
+    // TODO: 常見問答
     const faqs = [
         {
             id: 1,
