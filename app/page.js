@@ -206,6 +206,87 @@ export default function Home() {
                     </div>
                 </div>
             </section>
+
+            {/* Contact Form Section - White background */}
+            <section className="py-16 bg-white">
+                <div className="container mx-auto px-4">
+                    <h2 className="text-4xl font-bold text-center mb-12 text-black">聯絡表單</h2>
+                    <div className="max-w-2xl mx-auto">
+                        <form className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                                        姓名
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="name"
+                                        name="name"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF5733] focus:border-transparent outline-none transition duration-200"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                                        Email
+                                    </label>
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        name="email"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF5733] focus:border-transparent outline-none transition duration-200"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-2">
+                                        公司名稱
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="company"
+                                        name="company"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF5733] focus:border-transparent outline-none transition duration-200"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                                        職稱
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="title"
+                                        name="title"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF5733] focus:border-transparent outline-none transition duration-200"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                                    留言內容
+                                </label>
+                                <textarea
+                                    id="message"
+                                    name="message"
+                                    rows="5"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF5733] focus:border-transparent outline-none transition duration-200 resize-none"
+                                    required
+                                ></textarea>
+                            </div>
+                            <div className="text-center">
+                                <button
+                                    type="submit"
+                                    className="bg-[#FF5733] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#E64A2E] transition duration-300 transform hover:-translate-y-1"
+                                >
+                                    送出表單
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
         </>
     );
 }
