@@ -1,64 +1,32 @@
+'use client';
+import { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
+import { db } from "@/services/firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 // 註解 Ctrl + / 
 // app 底下的 page.js 是首頁
 // 開啟Cursor Tab -> Ctrl + Shift + P -> Enable Cursor Tab
 export default function Home() {
+    const [projects, setProjects] = useState([]);
 
-    // TODO: 作品集
-    // const 資料名稱 = [] <= 陣列(裡面可以放很多資料)
-    const projects = [
-        // 物件1
-        {
-            id: 1,
-            image: "https://picsum.photos/400/300?random=1",
-            title: "電子商務平台123",
-            description: "使用 React 和 Node.js 建構的現代購物平台，具備即時庫存管理功能。"
-        },
-        // 物件2
-        {
-            id: 2,
-            image: "https://picsum.photos/400/300?random=2",
-            title: "旅遊部落格",
-            description: "響應式旅遊部落格，展示世界各地的冒險故事，具備動態內容載入功能。"
-        },
-        {
-            id: 3,
-            image: "https://picsum.photos/400/300?random=3",
-            title: "任務管理系統",
-            description: "協作式任務管理應用程式，具備即時更新和團隊協作功能。"
-        },
-        {
-            id: 4,
-            image: "https://picsum.photos/400/300?random=4",
-            title: "作品集網站",
-            description: "展示創意作品和專業成就的個人作品集網站，採用現代化設計。"
-        },
-        {
-            id: 5,
-            image: "https://picsum.photos/400/300?random=5",
-            title: "AI 聊天助手",
-            description: "由機器學習驅動的智慧聊天機器人，提供全天候客戶支援，具備自然語言處理能力。"
-        },
-        {
-            id: 6,
-            image: "https://picsum.photos/400/300?random=6",
-            title: "健身追蹤器",
-            description: "全方位健身應用程式，追蹤運動、營養，並提供個人化訓練建議。"
-        },
-        {
-            id: 7,
-            image: "https://picsum.photos/400/300?random=7",
-            title: "社群學習平台",
-            description: "連接全球學生和教師的互動式教育平台，提供線上課程和協作學習功能。"
-        },
-        {
-            id: 8,
-            image: "https://picsum.photos/400/300?random=8",
-            title: "智慧家居儀表板",
-            description: "集中式物聯網控制系統，用於管理家用設備、能源消耗和安全監控。"
-        }
-    ];
+    useEffect(() => {
+        const fetchProjects = async () => {
+            try {
+                const projectsCollection = collection(db, "project-list");
+                const projectsSnapshot = await getDocs(projectsCollection);
+                const projectsList = projectsSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                setProjects(projectsList);
+            } catch (error) {
+                console.error("Error fetching projects:", error);
+            }
+        };
+
+        fetchProjects();
+    }, []);
 
     // TODO: 客戶推薦
     const testimonials = [
