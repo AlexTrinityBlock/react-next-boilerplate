@@ -4,8 +4,10 @@ import { auth, db } from "@/services/firebase"
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore'
 import { signOut } from 'firebase/auth'
 import ProductCard from '@/components/ProductCard'
+import { useRouter } from 'next/navigation'
 
 export default function AdminPage() {
+    const router = useRouter()
     const [formData, setFormData] = useState({
         title: '',
         image: '',
@@ -15,25 +17,32 @@ export default function AdminPage() {
     const [projects, setProjects] = useState([])
     const [editingProject, setEditingProject] = useState(null)
     const [user, setUser] = useState(null)
+    const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             setUser(user)
+            if (!user) {
+                // 未登入，導回首頁
+                router.push('/')
+            } else if (user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+                // 非管理員，導回首頁
+                router.push('/')
+                alert('您沒有管理員權限')
+            }
+            setIsLoading(false)
         })
 
         return () => unsubscribe()
-    }, [])
-
-    const handleSignOut = async () => {
-        try {
-            await signOut(auth)
-        } catch (error) {
-            console.error('登出失敗:', error)
-            alert('登出失敗')
-        }
-    }
+    }, [router])
 
     // 獲取所有作品
+    useEffect(() => {
+        if (user && user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+            fetchProjects()
+        }
+    }, [user])
+
     const fetchProjects = async () => {
         try {
             const querySnapshot = await getDocs(collection(db, "project-list"))
@@ -48,9 +57,15 @@ export default function AdminPage() {
         }
     }
 
-    useEffect(() => {
-        fetchProjects()
-    }, [])
+    const handleSignOut = async () => {
+        try {
+            await signOut(auth)
+            router.push('/')
+        } catch (error) {
+            console.error('登出失敗:', error)
+            alert('登出失敗')
+        }
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -105,6 +120,25 @@ export default function AdminPage() {
             ...prevState,
             [name]: value
         }))
+    }
+
+    // 渲染載入中狀態
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-100">
+                <div className="bg-white p-8 rounded-lg shadow-md">
+                    <div className="flex items-center space-x-4">
+                        <div className="w-6 h-6 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                        <p className="text-lg text-gray-600">驗證登入身份中...</p>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    // 如果沒有使用者或不是管理員，不渲染任何內容
+    if (!user || user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+        return null
     }
 
     // 渲染內容區域
