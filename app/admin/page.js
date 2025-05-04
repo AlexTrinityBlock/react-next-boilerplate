@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation' // 導入 useRouter
 import { auth, db } from "@/services/firebase"
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore'
 import { signOut } from 'firebase/auth'
@@ -15,14 +16,59 @@ export default function AdminPage() {
     const [projects, setProjects] = useState([])
     const [editingProject, setEditingProject] = useState(null)
     const [user, setUser] = useState(null)
+    const [loading, setLoading] = useState(true) // Keep loading state
+    const [isAdmin, setIsAdmin] = useState(false) // Keep isAdmin state
+    const [checkingAdmin, setCheckingAdmin] = useState(true); // Add state for admin check
+    const router = useRouter() // 初始化 useRouter
 
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-            setUser(user)
-        })
+        const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+            setUser(currentUser);
+            setIsAdmin(false); // Reset admin status
+            setCheckingAdmin(true); // Start checking admin status
 
-        return () => unsubscribe()
-    }, [])
+            if (currentUser) {
+                try {
+                    const response = await fetch('/api/check-admin', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email: currentUser.email }),
+                    });
+
+                    if (!response.ok) {
+                        console.error('Failed to check admin status:', response.statusText);
+                        alert('檢查管理員權限失敗，將重導回首頁。');
+                        router.push('/');
+                    } else {
+                        const data = await response.json();
+                        setIsAdmin(data.isAdmin);
+                        if (data.isAdmin) {
+                            fetchProjects(); // Fetch projects only if admin
+                        } else {
+                            alert('權限不足，將重導回首頁。');
+                            router.push('/');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error calling check-admin API:', error);
+                    alert('檢查管理員權限時發生錯誤，將重導回首頁。');
+                    router.push('/');
+                } finally {
+                    setCheckingAdmin(false); // Finish checking admin status
+                    setLoading(false); // Overall loading finished after check
+                }
+            } else {
+                // No user logged in, redirect to login
+                router.push('/login');
+                setCheckingAdmin(false);
+                setLoading(false);
+            }
+        });
+
+        return () => unsubscribe();
+    }, [router]); // Keep router in dependency array
 
     const handleSignOut = async () => {
         try {
@@ -47,10 +93,6 @@ export default function AdminPage() {
             alert('獲取作品列表失敗')
         }
     }
-
-    useEffect(() => {
-        fetchProjects()
-    }, [])
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -225,28 +267,21 @@ export default function AdminPage() {
         }
     }
 
+    // Update loading condition
+    if (loading || checkingAdmin) {
+        return <div className="min-h-screen flex items-center justify-center">檢查權限中...</div>;
+    }
+
+    // Update guard condition
+    if (!user || !isAdmin) {
+        // This part might not be reached due to redirects, but serves as a fallback
+        return null;
+    }
+
+    // 只有管理員才能看到以下內容
     return (
         <div className="min-h-screen bg-gray-100">
-            {/* Auth Status Bar */}
-            <div className="bg-white shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-                    <div className="text-gray-700">
-                        {user ? (
-                            <span>目前登入帳號：{user.email}</span>
-                        ) : (
-                            <span>目前尚未登入</span>
-                        )}
-                    </div>
-                    {user && (
-                        <button
-                            onClick={handleSignOut}
-                            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-                        >
-                            登出
-                        </button>
-                    )}
-                </div>
-            </div>
+            {/* Auth Status Bar Removed */}
 
             <div className="grid grid-cols-4 gap-6 p-6">
                 {/* 左側選單 */}
